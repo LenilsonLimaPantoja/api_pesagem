@@ -58,9 +58,11 @@ app.use((req, res, next) => {
 app.use((error, req, res, next) => {
     res.status(error.status || 500);
     return res.send({
-        error: {
-            message: error.message,
+        retorno: {
+            status: error.status || 500,
+            mensagem: error.message,
         },
+        registros: []
     });
 });
 
