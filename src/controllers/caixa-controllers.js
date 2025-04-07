@@ -23,7 +23,7 @@ exports.readCaixas = async (req, res, next) => {
                     ORDER BY peso_caixa.criado_em DESC
                     LIMIT 1
                 )
-            WHERE caixas.apicultor_id = $1 and (caixas.observacao like $2 or caixas.identificador_balanca like $3)
+            WHERE caixas.apicultor_id = $1 and (caixas.observacao ilike $2 or caixas.identificador_balanca ilike $3)
             ORDER BY caixas.id DESC`,
             [apicultor_id, `%${obs_identificador}%`, `%${obs_identificador}%`]
         );
