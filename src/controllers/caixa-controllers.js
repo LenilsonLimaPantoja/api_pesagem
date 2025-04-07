@@ -255,8 +255,8 @@ exports.updateCaixa = async (req, res, next) => {
         );
 
         if (!isDifferent) {
-            return res.status(400).send({
-                retorno: { status: 400, mensagem: "Nenhuma alteração foi feita." },
+            return res.status(201).send({
+                retorno: { status: 201, mensagem: "Nenhuma alteração foi feita." },
                 registros: []
             });
         }
