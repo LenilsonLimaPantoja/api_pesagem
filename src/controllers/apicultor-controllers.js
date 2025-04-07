@@ -126,7 +126,7 @@ const sendEmail = async (email, token) => {
             html: `
                 <h1>Alteração de Senha</h1>
                 <p>Recebemos um pedido para alterar a sua senha. Para continuar, clique no link abaixo:</p>
-                <a href="http://localhost:3000/senha/alterar/${token}">Clique aqui para alterar sua senha</a>
+                <a href="https://pesagem-snowy.vercel.app/#/senha/alterar/${token}">Clique aqui para alterar sua senha</a>
                 <p>Se você não solicitou essa alteração, pode ignorar este e-mail.</p>
             ` // Corpo do e-mail em HTML
         };
