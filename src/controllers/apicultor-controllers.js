@@ -120,7 +120,7 @@ const sendEmail = async (email, token) => {
 
         // Configurar o e-mail
         const mailOptions = {
-            from: 'lucas.martins7@estudante.ifms.edu.br', // Seu e-mail
+            from: 'PesaBox', // Seu e-mail
             to: email, // E-mail do destinatário
             subject: 'Alteração de Senha', // Assunto
             html: `
@@ -129,7 +129,7 @@ const sendEmail = async (email, token) => {
                         <h2 style="color: #333;">Recebemos uma solicitação para alterar sua senha de acesso à nossa plataforma</h2>
                         <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;" />
                         <p style="font-size: 14px; color: #555;">
-                        Se você não fez essa <strong style="color: #fbbc04;">solicitação</strong> para alterar sua senha, alguém pode estar usando sua conta. Verifique e proteja a conta imediatamente.
+                        Se você não fez essa solicitação para alterar sua senha, alguém pode estar usando sua conta. Verifique e proteja a conta imediatamente.
                         </p>
                         <a href="https://pesagem-snowy.vercel.app/#/senha/alterar/${token}" 
                         style="display: inline-block; margin-top: 25px; background-color: #4285F4; color: white; padding: 12px 25px; border-radius: 4px; text-decoration: none; font-size: 15px; min-width: 300px;">
