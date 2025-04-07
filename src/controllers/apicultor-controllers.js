@@ -126,6 +126,9 @@ const sendEmail = async (email, token) => {
             html: `
                 <div style="width: 100%; background-color: #f4f4f4; padding: 40px 0; font-family: Arial, sans-serif;">
                     <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 30px; text-align: center;">
+                        
+                        <img src="https://cdn-icons-png.flaticon.com/512/4511/4511571.png" alt="Abelha" style="width: 80px; " />
+                        
                         <h2 style="color: #333;">Recebemos uma solicitação para alterar sua senha de acesso à nossa plataforma</h2>
                         <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;" />
                         <p style="font-size: 14px; color: #555;">
