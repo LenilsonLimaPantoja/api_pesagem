@@ -120,7 +120,7 @@ const sendEmail = async (email, token) => {
 
         // Configurar o e-mail
         const mailOptions = {
-            from: 'PesaBox', // Seu e-mail
+            from: 'PesaBox <lucas.martins7@estudante.ifms.edu.br>', // Seu e-mail
             to: email, // E-mail do destinatário
             subject: 'Alteração de Senha', // Assunto
             html: `
