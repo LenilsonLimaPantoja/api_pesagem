@@ -1,6 +1,8 @@
 const executeQuery = require("../../pgsql");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { v4: uuidv4 } = require('uuid');
+const nodemailer = require('nodemailer');
 
 exports.readOneApicultor = async (req, res, next) => {
     try {
@@ -101,6 +103,220 @@ exports.createApicultor = async (req, res, next) => {
     }
 };
 
+// Função para enviar o e-mail
+const sendEmail = async (email, token) => {
+    try {
+        // Criar o transportador de e-mail
+        const transporter = nodemailer.createTransport({
+            service: 'gmail', // Usando o Gmail como exemplo
+            auth: {
+                user: 'lucas.martins7@estudante.ifms.edu.br', // Seu e-mail
+                pass: 'mubreajccjxqdvvy' // Sua senha ou app password
+            },
+            tls: {
+                rejectUnauthorized: false // Desabilita a validação do certificado SSL
+            }
+        });
+
+        // Configurar o e-mail
+        const mailOptions = {
+            from: 'lucas.martins7@estudante.ifms.edu.br', // Seu e-mail
+            to: email, // E-mail do destinatário
+            subject: 'Alteração de Senha', // Assunto
+            html: `
+                <h1>Alteração de Senha</h1>
+                <p>Recebemos um pedido para alterar a sua senha. Para continuar, clique no link abaixo:</p>
+                <a href="http://localhost:3000/senha/alterar/${token}">Clique aqui para alterar sua senha</a>
+                <p>Se você não solicitou essa alteração, pode ignorar este e-mail.</p>
+            ` // Corpo do e-mail em HTML
+        };
+
+        // Enviar o e-mail
+        await transporter.sendMail(mailOptions);
+        console.log('E-mail enviado com sucesso!');
+    } catch (error) {
+        console.error('Erro ao enviar o e-mail:', error);
+        throw new Error('Erro ao enviar o e-mail');
+    }
+};
+
+exports.createTokenAlterarSenha = async (req, res, next) => {
+    try {
+        let { email } = req.body;
+
+        if (!email) {
+            return res.status(400).send({
+                retorno: {
+                    status: 400,
+                    mensagem: "Verifique os dados e tente novamente.",
+                },
+                registros: []
+            });
+        }
+
+        const resultExisteEmail = await executeQuery(
+            `select id from apicultores where email = $1`,
+            [email]
+        );
+
+        if (resultExisteEmail?.length < 1) {
+            return res.status(404).send({
+                retorno: {
+                    status: 404,
+                    mensagem: "Email não encontrado, tente novamente.",
+                },
+                registros: []
+            });
+        }
+
+        const resultExisteToken = await executeQuery(
+            `select id from token_alterar_senha where email = $1`,
+            [email]
+        );
+
+        if (resultExisteToken?.length > 0) {
+            await executeQuery(
+                `delete from token_alterar_senha where email = $1`,
+                [email]
+            );
+        }
+
+        // Gerar um token único
+        const hashToken = uuidv4();
+
+        // Salvar o token no banco de dados
+        const result = await executeQuery(
+            `INSERT INTO token_alterar_senha (token_senha, email, criado_em)
+            VALUES ($1, $2, NOW())
+            RETURNING id, token_senha, email, criado_em;`,
+            [hashToken, email]
+        );
+
+        // Enviar o e-mail com o token
+        await sendEmail(email, hashToken);
+
+        res.status(201).send({
+            retorno: {
+                status: 201,
+                mensagem: `Enviamos um email para ${email} com um link para alterar sua senha, verifique sua caixa de entrada.`,
+            },
+            registros: result
+        });
+
+    } catch (error) {
+        console.error("Erro ao solicitar alteração de senha:", error);
+        res.status(500).send({
+            retorno: {
+                status: 500,
+                mensagem: "Erro ao solicitar alteração de senha, tente novamente.",
+                erro: error.message
+            },
+            registros: []
+        });
+    }
+};
+
+exports.readOneTokenAlterarSenha = async (req, res, next) => {
+    try {
+        const { token_senha } = req.params;
+
+        const responseApicultor = await executeQuery(
+            `SELECT id FROM token_alterar_senha where token_senha = $1`,
+            [token_senha]
+        );
+
+        if (responseApicultor.length === 0) {
+            return res.status(404).send({
+                retorno: {
+                    status: 404,
+                    mensagem: "Ação não autorizada, tente novamente.",
+                },
+                registros: []
+            });
+        }
+
+        res.status(200).send({
+            retorno: {
+                status: 200,
+                mensagem: "Ação autorizada.",
+            },
+            registros: []
+        });
+
+    } catch (error) {
+        console.error("Erro ao buscar token:", error);
+        res.status(500).send({
+            retorno: {
+                status: 500,
+                mensagem: "Erro ao buscar token, tente novamente.",
+                erro: error.message
+            },
+            registros: []
+        });
+    }
+};
+
+exports.updateSenha = async (req, res, next) => {
+    try {
+        const { token_senha, senha } = req.body;
+
+        if (!token_senha || !senha) {
+            return res.status(400).send({
+                retorno: {
+                    status: 400,
+                    mensagem: "Campos obrigatórios não foram informados, tente novamente.",
+                },
+                registros: []
+            });
+        }
+
+        const responseApicultor = await executeQuery(
+            `SELECT id, email FROM token_alterar_senha where token_senha = $1`,
+            [token_senha]
+        );
+
+        if (responseApicultor.length === 0) {
+            return res.status(404).send({
+                retorno: {
+                    status: 404,
+                    mensagem: "Ação não autorizada, tente novamente.",
+                },
+                registros: []
+            });
+        }
+
+        const senhaHash = await bcrypt.hash(senha, 10);
+
+        await executeQuery(
+            `update apicultores set senha = $1 where email = $2`,
+            [senhaHash, responseApicultor[0].email]
+        );
+
+        await executeQuery(
+            `delete from token_alterar_senha where token_senha = $1`,
+            [token_senha]
+        );
+
+        res.status(200).send({
+            retorno: {
+                status: 200,
+                mensagem: "Sua senha foi alterada com sucesso.",
+            },
+            registros: []
+        });
+
+    } catch (error) {
+        console.error("Erro ao buscar token:", error);
+        res.status(500).send({
+            retorno: {
+                status: 500,
+                mensagem: "Erro ao buscar token, tente novamente.",
+                erro: error.message
+            },
+            registros: []
+        });
+    }
+};
 
 exports.loginApicultor = async (req, res, next) => {
     try {
@@ -189,6 +405,18 @@ exports.updateApicultor = async (req, res, next) => {
         // Converter e-mail para lowercase
         if (email) email = email.toLowerCase();
 
+        const resultEmailExiste = await executeQuery(
+            `select id from apicultores where email = $1 and id != $2`,
+            [email, apicultor_id]
+        );
+
+        if (resultEmailExiste.length > 0) {
+            return res.status(500).send({
+                retorno: { status: 500, mensagem: `Email ${email} já existe para outro apicultor.` },
+                registros: []
+            });
+        }
+
         const campos = [];
         const valores = [];
         let index = 1;
@@ -249,7 +477,7 @@ exports.updateApicultor = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error("Erro ao atualizar apicultor:", error);
+        // console.error("Erro ao atualizar apicultor:", error);
         res.status(500).send({
             retorno: {
                 status: 500,

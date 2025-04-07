@@ -6,6 +6,8 @@ const app = express();
 
 // Importando as rotas
 const apicultorRoutes = require('./src/routes/apicultor.routes.js');
+const caixaRoutes = require('./src/routes/caixa.routes.js');
+const pesoCaixaRoutes = require('./src/routes/peso-caixa.routes.js');
 
 // Usando o morgan para logs
 app.use(morgan('dev'));
@@ -19,29 +21,31 @@ app.use(bodyParser.json());
 app.use((req, res, next) => {
     // Lista de origens permitidas
     const allowedOrigins = process.env.URL_CORS;
-    
+
     // Verifica se a origem da requisição está na lista de origens permitidas
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
         res.header("Access-Control-Allow-Origin", origin); // Permite apenas o frontend específico
     }
-    
+
     res.header("Access-Control-Allow-Credentials", "true"); // Permite cookies e credenciais
     res.header(
         "Access-Control-Allow-Headers",
         "Origin, X-Requested-With, Content-Type, Accept, Authorization"
     );
-    
+
     if (req.method === "OPTIONS") {
         res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
         return res.status(200).send({});
     }
-    
+
     next();
 });
 
 // Defina suas rotas e configure o servidor Express
 app.use('/apicultor', apicultorRoutes);
+app.use('/caixa', caixaRoutes);
+app.use('/peso-caixa', pesoCaixaRoutes);
 
 // Middleware para tratamento de URL não encontrada
 app.use((req, res, next) => {

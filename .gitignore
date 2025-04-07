@@ -6,4 +6,4 @@ nodemon.json
 # Ignore arquivos com chaves de acesso
 *.pem
 *.key
-# *.env
+*.env
