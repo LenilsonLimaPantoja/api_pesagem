@@ -32,7 +32,7 @@ exports.readCaixas = async (req, res, next) => {
             return res.status(404).send({
                 retorno: {
                     status: 404,
-                    mensagem: "Nenhuma informação foi localizada.",
+                    mensagem: "Nenhuma caixa foi localizada.",
                 },
                 registros: []
             });
