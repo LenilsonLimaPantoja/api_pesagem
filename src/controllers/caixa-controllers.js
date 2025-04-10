@@ -316,7 +316,7 @@ exports.deleteCaixa = async (req, res, next) => {
         res.status(200).send({
             retorno: {
                 status: 200,
-                mensagem: `A caixa '${deletedCaixa[0].id}' foi removida com sucesso.`,
+                mensagem: `A caixa '${deletedCaixa[0].identificador_balanca}' foi removida com sucesso.`,
             },
             registros: deletedCaixa
         });
