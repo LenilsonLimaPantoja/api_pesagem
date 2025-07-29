@@ -110,8 +110,8 @@ const sendEmail = async (email, token) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail', // Usando o Gmail como exemplo
             auth: {
-                user: 'lucas.martins7@estudante.ifms.edu.br', // Seu e-mail
-                pass: 'mubreajccjxqdvvy' // Sua senha ou app password
+                user: 'lenilson.pantoja@estudante.ifms.edu.br', // Seu e-mail
+                pass: 'ckrvqhytjasvdbwu' // Sua senha ou app password
             },
             tls: {
                 rejectUnauthorized: false // Desabilita a validação do certificado SSL
@@ -120,7 +120,7 @@ const sendEmail = async (email, token) => {
 
         // Configurar o e-mail
         const mailOptions = {
-            from: 'PesaBox <lucas.martins7@estudante.ifms.edu.br>', // Seu e-mail
+            from: 'PesaBox <lenilson.pantoja@estudante.ifms.edu.br>', // Seu e-mail
             to: email, // E-mail do destinatário
             subject: 'Alteração de Senha', // Assunto
             html: `
