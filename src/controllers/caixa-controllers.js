@@ -167,9 +167,9 @@ exports.createCaixa = async (req, res, next) => {
             // Atualiza observação
             result = await executeQuery(`
                 UPDATE caixas
-                SET observacao = $1, atualizado_em = NOW()
+                SET observacao = $1
                 WHERE identificador_balanca = $2 AND apicultor_id = $3
-                RETURNING id, observacao, identificador_balanca, apicultor_id, criado_em, atualizado_em;
+                RETURNING id, observacao, identificador_balanca, apicultor_id, criado_em;
             `, [observacao, identificador_balanca, apicultor_id]);
 
             return res.status(200).send({
