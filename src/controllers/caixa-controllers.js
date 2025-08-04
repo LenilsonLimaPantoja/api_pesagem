@@ -156,26 +156,37 @@ exports.createCaixa = async (req, res, next) => {
             });
         }
 
-        //verifica se o Identificador já existe
+        // Verifica se já existe
         const identificadorExistente = await executeQuery(`
-            SELECT id, observacao, identificador_balanca, criado_em, apicultor_id FROM caixas WHERE identificador_balanca = $1 and apicultor_id = $2
+            SELECT id FROM caixas WHERE identificador_balanca = $1 AND apicultor_id = $2
         `, [identificador_balanca, apicultor_id]);
 
+        let result;
+
         if (identificadorExistente.length > 0) {
-            return res.status(409).send({
+            // Atualiza observação
+            result = await executeQuery(`
+                UPDATE caixas
+                SET observacao = $1, atualizado_em = NOW()
+                WHERE identificador_balanca = $2 AND apicultor_id = $3
+                RETURNING id, observacao, identificador_balanca, apicultor_id, criado_em, atualizado_em;
+            `, [observacao, identificador_balanca, apicultor_id]);
+
+            return res.status(200).send({
                 retorno: {
-                    status: 409,
-                    mensagem: "Identificador já cadastrado, tente outro.",
+                    status: 200,
+                    mensagem: "Caixa atualizada com sucesso.",
                 },
-                registros: []
+                registros: result
             });
         }
 
-        const result = await executeQuery(
-            `INSERT INTO caixas (observacao, identificador_balanca, apicultor_id, criado_em)
+        // Se não existe, cria
+        result = await executeQuery(`
+            INSERT INTO caixas (observacao, identificador_balanca, apicultor_id, criado_em)
             VALUES ($1, $2, $3, NOW())
-            RETURNING id, observacao, identificador_balanca, apicultor_id, criado_em;`,
-            [observacao, identificador_balanca, apicultor_id]);
+            RETURNING id, observacao, identificador_balanca, apicultor_id, criado_em;
+        `, [observacao, identificador_balanca, apicultor_id]);
 
         res.status(201).send({
             retorno: {
@@ -186,11 +197,11 @@ exports.createCaixa = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error("Erro ao cadastrar caixa:", error);
+        console.error("Erro ao cadastrar ou atualizar caixa:", error);
         res.status(500).send({
             retorno: {
                 status: 500,
-                mensagem: "Erro ao cadastrar caixa, tente novamente.",
+                mensagem: "Erro ao salvar caixa, tente novamente.",
                 erro: error.message
             },
             registros: []
