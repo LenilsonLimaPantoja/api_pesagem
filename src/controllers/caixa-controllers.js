@@ -259,20 +259,6 @@ exports.updateCaixa = async (req, res, next) => {
             });
         }
 
-        // Verificar se os dados realmente mudaram
-        const dadosAtuais = caixaAtual[0];
-        const isDifferent = (
-            (observacao && observacao !== dadosAtuais.observacao) ||
-            (identificador_balanca && identificador_balanca !== dadosAtuais.identificador_balanca)
-        );
-
-        if (!isDifferent) {
-            return res.status(201).send({
-                retorno: { status: 201, mensagem: "Nenhuma alteração foi feita." },
-                registros: []
-            });
-        }
-
         valores.push(caixa_id);
         const query = `UPDATE caixas SET ${campos.join(", ")} WHERE id=$${valores.length} RETURNING *`;
 
