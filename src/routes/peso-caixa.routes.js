@@ -5,6 +5,7 @@ const pesoCaixaController =  require("../controllers/peso-caixa-controllers.js")
 const login = require('../middleware/login.js');
 
 routes.get('/:caixa_id', login.obrigatorioLogin, pesoCaixaController.readPesoCaixas);
+routes.get('/', pesoCaixaController.rotaParaTestarResolucaoDeNome);
 routes.post('/', pesoCaixaController.createPesoCaixa);
 
 module.exports = routes;

@@ -107,3 +107,45 @@ exports.createPesoCaixa = async (req, res, next) => {
         });
     }
 };
+
+
+const dns = require("dns");
+
+exports.rotaParaTestarResolucaoDeNome = async (req, res, next) => {
+    try {
+        const hostname = 'raspberrypi-000000005913b540.local';
+
+        dns.lookup(hostname, { all: true }, (err, addresses) => {
+            if (err) {
+                console.error("Erro ao resolver hostname:", err);
+                return res.status(500).send({
+                    retorno: {
+                        status: 500,
+                        mensagem: "Erro ao resolver hostname.",
+                        erro: err.message
+                    },
+                    registros: []
+                });
+            }
+
+            res.status(200).send({
+                retorno: {
+                    status: 200,
+                    mensagem: "Teste de resolução de nome feita com sucesso.",
+                },
+                registros: addresses // lista de IPs
+            });
+        });
+
+    } catch (error) {
+        console.error("Erro no teste de resolução de nome:", error);
+        res.status(500).send({
+            retorno: {
+                status: 500,
+                mensagem: "Erro no teste de resolução de nome.",
+                erro: error.message
+            },
+            registros: []
+        });
+    }
+};
